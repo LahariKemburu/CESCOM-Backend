@@ -1,0 +1,39 @@
+{
+  "name": "cescom-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+"scripts": {
+  "dev": "tsx watch src/index.ts",
+  "build": "tsc",
+  "start": "node dist/index.js",
+  "seed:admin": "tsx src/scripts/seedAdmin.ts"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LahariKemburu/CESCOM-Backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/LahariKemburu/CESCOM-Backend/issues"
+  },
+  "homepage": "https://github.com/LahariKemburu/CESCOM-Backend#readme",
+  "dependencies": {
+    "@apollo/server": "^5.5.1",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^18.0.9",
+    "graphql": "^16.15.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.12.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "5.9"
+  }
+}
