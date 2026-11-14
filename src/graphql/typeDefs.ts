@@ -9,6 +9,7 @@ export const typeDefs = `#graphql
     PENDING
     ACTIVE
     REJECTED
+    INACTIVE
   }
 
   type User {
@@ -39,6 +40,7 @@ export const typeDefs = `#graphql
     health: String!
     me: User
     pendingUsers: [User!]!
+    users(status: Status): [User!]!
   }
 
   type Mutation {
@@ -46,5 +48,7 @@ export const typeDefs = `#graphql
     login(email: String!, password: String!): AuthPayload!
     approveUser(id: ID!, role: Role): User!
     rejectUser(id: ID!): User!
+    updateUserRole(id: ID!, role: Role!): User!
+    setUserActive(id: ID!, active: Boolean!): User!
   }
 `
