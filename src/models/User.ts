@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose'
 
 export const ROLES = ['ADMIN', 'WAREHOUSE_MANAGER', 'EMPLOYEE'] as const
-export const STATUSES = ['PENDING', 'ACTIVE', 'REJECTED'] as const
+export const STATUSES = ['PENDING', 'ACTIVE', 'REJECTED', 'INACTIVE'] as const
 
 export type Role = (typeof ROLES)[number]
 export type Status = (typeof STATUSES)[number]

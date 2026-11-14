@@ -36,6 +36,7 @@ export async function login(emailInput: string, passwordInput: string) {
   if (!user || !valid) fail('Invalid email or password', 'UNAUTHENTICATED')
   if (user.status === 'PENDING') fail('Your account is awaiting administrator approval', 'FORBIDDEN')
   if (user.status === 'REJECTED') fail('Your registration request was rejected', 'FORBIDDEN')
+  if (user.status === 'INACTIVE') fail('Your account has been deactivated. Contact an administrator.', 'FORBIDDEN')
 
   const token = signToken({ userId: user.id, role: user.role })
   return { token, user }

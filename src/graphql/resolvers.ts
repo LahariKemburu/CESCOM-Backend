@@ -1,7 +1,14 @@
 import { User } from '../models/User'
-import type { Role } from '../models/User'
+import type { Role, Status } from '../models/User'
 import { signup, login } from '../services/authService'
-import { listPendingUsers, approveUser, rejectUser } from '../services/adminService'
+import {
+  listPendingUsers,
+  listUsers,
+  approveUser,
+  rejectUser,
+  updateUserRole,
+  setUserActive,
+} from '../services/adminService'
 import { requireRole } from '../middleware/guards'
 import type { Context } from './context'
 
@@ -17,6 +24,10 @@ export const resolvers = {
       await requireRole(ctx, ['ADMIN'])
       return listPendingUsers()
     },
+    users: async (_: unknown, args: { status?: Status | null }, ctx: Context) => {
+      await requireRole(ctx, ['ADMIN'])
+      return listUsers(args.status ?? undefined)
+    },
   },
   Mutation: {
     signup: (_: unknown, args: { input: { fullName: string; email: string; password: string } }) =>
@@ -30,6 +41,14 @@ export const resolvers = {
     rejectUser: async (_: unknown, args: { id: string }, ctx: Context) => {
       await requireRole(ctx, ['ADMIN'])
       return rejectUser(args.id)
+    },
+    updateUserRole: async (_: unknown, args: { id: string; role: Role }, ctx: Context) => {
+      const admin = await requireRole(ctx, ['ADMIN'])
+      return updateUserRole(admin.id, args.id, args.role)
+    },
+    setUserActive: async (_: unknown, args: { id: string; active: boolean }, ctx: Context) => {
+      const admin = await requireRole(ctx, ['ADMIN'])
+      return setUserActive(admin.id, args.id, args.active)
     },
   },
 }
