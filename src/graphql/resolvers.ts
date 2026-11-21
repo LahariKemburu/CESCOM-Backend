@@ -1,5 +1,7 @@
 import { User } from '../models/User'
 import type { Role, Status } from '../models/User'
+import type { Uom } from '../models/Item'
+import type { StockType } from '../models/StockMovement'
 import { signup, login } from '../services/authService'
 import {
   listPendingUsers,
@@ -9,8 +11,29 @@ import {
   updateUserRole,
   setUserActive,
 } from '../services/adminService'
+import {
+  adjustStock,
+  createItem,
+  deleteItem,
+  getItem,
+  getItemHistory,
+  getItemStats,
+  getStockSummary,
+  listItems,
+  updateItem,
+} from '../services/itemService'
+import type { Actor, ItemListArgs } from '../services/itemService'
 import { requireRole } from '../middleware/guards'
 import type { Context } from './context'
+
+const VIEW_ROLES: Role[] = ['ADMIN', 'WAREHOUSE_MANAGER', 'EMPLOYEE']
+const MANAGE_ROLES: Role[] = ['ADMIN', 'WAREHOUSE_MANAGER']
+
+const actorOf = (user: { id: string; fullName: string; role: Role }): Actor => ({
+  id: user.id,
+  name: user.fullName,
+  role: user.role,
+})
 
 export const resolvers = {
   Query: {
@@ -27,6 +50,30 @@ export const resolvers = {
     users: async (_: unknown, args: { status?: Status | null }, ctx: Context) => {
       await requireRole(ctx, ['ADMIN'])
       return listUsers(args.status ?? undefined)
+    },
+    items: async (_: unknown, args: ItemListArgs, ctx: Context) => {
+      await requireRole(ctx, VIEW_ROLES)
+      return listItems(args)
+    },
+    item: async (_: unknown, args: { id: string }, ctx: Context) => {
+      await requireRole(ctx, VIEW_ROLES)
+      return getItem(args.id)
+    },
+    itemStats: async (_: unknown, __: unknown, ctx: Context) => {
+      await requireRole(ctx, VIEW_ROLES)
+      return getItemStats()
+    },
+    stockSummary: async (
+      _: unknown,
+      args: { days?: number | null; itemId?: string | null; limit?: number | null },
+      ctx: Context,
+    ) => {
+      await requireRole(ctx, VIEW_ROLES)
+      return getStockSummary(args)
+    },
+    itemHistory: async (_: unknown, args: { id: string }, ctx: Context) => {
+      await requireRole(ctx, MANAGE_ROLES)
+      return getItemHistory(args.id)
     },
   },
   Mutation: {
@@ -50,5 +97,40 @@ export const resolvers = {
       const admin = await requireRole(ctx, ['ADMIN'])
       return setUserActive(admin.id, args.id, args.active)
     },
+    createItem: async (
+      _: unknown,
+      args: { input: { itemCode: string; description: string; uom: Uom; quantity?: number | null } },
+      ctx: Context,
+    ) => {
+      const user = await requireRole(ctx, MANAGE_ROLES)
+      return createItem(actorOf(user), args.input)
+    },
+    updateItem: async (
+      _: unknown,
+      args: { id: string; input: { itemCode?: string | null; description?: string | null; uom?: Uom | null } },
+      ctx: Context,
+    ) => {
+      const user = await requireRole(ctx, MANAGE_ROLES)
+      return updateItem(actorOf(user), args.id, args.input)
+    },
+    adjustStock: async (
+      _: unknown,
+      args: { id: string; type: StockType; quantity: number; note?: string | null },
+      ctx: Context,
+    ) => {
+      const user = await requireRole(ctx, MANAGE_ROLES)
+      return adjustStock(actorOf(user), args.id, args.type, args.quantity, args.note)
+    },
+    deleteItem: async (_: unknown, args: { id: string }, ctx: Context) => {
+      const user = await requireRole(ctx, MANAGE_ROLES)
+      return deleteItem(actorOf(user), args.id)
+    },
+  },
+  StockMovement: {
+    itemId: (movement: { item: { toString(): string } }) => movement.item.toString(),
+    createdAt: (movement: { createdAt: Date }) => movement.createdAt.toISOString(),
+  },
+  ItemChange: {
+    createdAt: (change: { createdAt: Date }) => change.createdAt.toISOString(),
   },
 }

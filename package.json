@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-"scripts": {
-  "dev": "tsx watch src/index.ts",
-  "build": "tsc",
-  "start": "node dist/index.js",
-  "seed:admin": "tsx src/scripts/seedAdmin.ts"
-},
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "seed:admin": "tsx src/scripts/seedAdmin.ts",
+    "import:items": "tsx src/scripts/importItems.ts"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/LahariKemburu/CESCOM-Backend.git"
@@ -24,7 +25,9 @@
   "dependencies": {
     "@apollo/server": "^5.5.1",
     "bcryptjs": "^3.0.3",
+    "csv-parse": "^7.0.3",
     "dotenv": "^18.0.9",
+    "exceljs": "^4.4.0",
     "graphql": "^16.15.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.12.0"

@@ -6,9 +6,14 @@ import { typeDefs } from './graphql/typeDefs'
 import { resolvers } from './graphql/resolvers'
 import type { Context } from './graphql/context'
 import { verifyToken } from './utils/auth'
+import { Item } from './models/Item'
 
 async function main() {
   await connectDB()
+
+  // Items created before stock tracking existed start with a quantity of 0.
+  await Item.updateMany({ quantity: { $exists: false } }, { $set: { quantity: 0 } })
+
   const server = new ApolloServer<Context>({ typeDefs, resolvers })
   const port = Number(process.env.PORT) || 4000
 
