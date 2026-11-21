@@ -3,6 +3,9 @@ import type { Types } from 'mongoose'
 import { UOMS } from './Item'
 import type { Uom } from './Item'
 
+// Stock history older than this is deleted automatically by MongoDB.
+export const STOCK_LOG_TTL_DAYS = 30
+
 export const STOCK_TYPES = ['IN', 'OUT'] as const
 export type StockType = (typeof STOCK_TYPES)[number]
 
@@ -36,6 +39,7 @@ const stockMovementSchema = new Schema<IStockMovement>(
   { timestamps: { createdAt: true, updatedAt: false } },
 )
 
-stockMovementSchema.index({ createdAt: -1 })
+// TTL index: MongoDB removes each record once it is older than STOCK_LOG_TTL_DAYS.
+stockMovementSchema.index({ createdAt: 1 }, { expireAfterSeconds: STOCK_LOG_TTL_DAYS * 24 * 60 * 60 })
 
 export const StockMovement = model<IStockMovement>('StockMovement', stockMovementSchema)
